@@ -6,6 +6,9 @@ var logger = require('morgan');
 const https = require('https');
 const fs = require('fs');
 var app = express();
+const cors = require('cors');
+
+app.use(cors({origin: 'https://localhost:3000', credentials:true}));
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
@@ -26,6 +29,18 @@ var apiRouter = require('./routes/api');
 
 app.set('socketio', io);
 
+const sessionObj = session({
+  secret: 'hiipzz1r',
+  resave: false,
+  saveUninitialized: true,
+  store: new MemoryStore({ checkPeriod: (3.6e+6)*24 }),
+  cookie: {
+    maxAge: (3.6e+6)*24,
+    httpOnly: true,
+    secure: false
+  }
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -36,17 +51,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const sessionObj = {
-  secret: 'hiipzz1r',
-  resave: false,
-  saveUninitialized: true,
-  store: new MemoryStore({ checkPeriod: (3.6e+6)*24 }),
-  cookie: {
-    maxAge: (3.6e+6)*24
-  },
-};
-
-app.use(session(sessionObj));
+app.use(sessionObj);
 
 app.use('/rooms', roomsRouter);
 app.use('/', apiRouter);

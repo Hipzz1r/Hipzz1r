@@ -1,6 +1,21 @@
 var express = require('express');
 var router = express.Router();
 
+router.get('/user', function(req, res, next) {
+    var result = {};
+    // console.log(req.session);
+    if(req.session.avatar == undefined){
+        req.session.avatar = "Images/Monster1.png";
+        // console.log("t");
+    }
+    if(req.session.nickname == undefined) req.session.nickname = "익명의 래퍼";
+    result.sessionID = req.sessionID;
+    result.avatar = req.session.avatar;
+    result.nickname = req.session.nickname;
+    // console.log(result);
+    res.send(result);
+});
+
 router.get('/user/avatar', function(req, res, next) {
     if(req.session.avatar == undefined) req.session.avatar = "Images/Monster1.png";
     res.send(req.session.avatar);
