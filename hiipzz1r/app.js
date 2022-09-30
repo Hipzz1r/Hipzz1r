@@ -44,23 +44,37 @@ const server = http.createServer(app);
 
 var io = require('socket.io')(server);
 
-io.on('connection', function (socket) {
+//네임스페이스 설정
+const room = io.of('/room');
 
+room.on('connection', function (socket) {
   console.log('Connect from Client: ' + socket)
 
-  socket.on('onUserExit', function (data) {
-    console.log('message from Client: ' + data.message)
-    var rtnMessage = {
-      message : data.message
-      ,socketId : data.socketId
-    }; // 클라이언트에게 메시지를 전송한다
-    socket.broadcast.emit('chat', rtnMessage);
-  });
-  socket.on('onUserEnter', function (data) {
+  var req = socket.request;
 
+  const {
+    headers: {referer},
+  } = req;
+  const roomId = referer.split('/')[referer.split('/').length-1].replace(/\?.+/,'');
+  socket.join(roomId);
+
+  socket.to(roomId).emit('join', {
+    user: socket.userId,
+    category : socket.avatarcategory,
+    nickname : socket.usernickname
   });
+
   socket.on('onFacialExpression', function (data) {
 
+  });
+  socket.on('onUserExit', function (data) {
+    console.log('user exit' + data.userId)
+    var rtnMessage = {
+      message : data.userId
+      ,socketId : data.socketId
+    };
+    socket.to(roomId).emit('onUserExit', rtnMessage);
+    socket.leave(roomId);
   });
 })
 
