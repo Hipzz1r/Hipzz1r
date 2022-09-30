@@ -16,6 +16,7 @@ module.exports = function (io) {
             socket.join(roomId);
             console.log('Connect from Client: ' + data.sessionID)
             socket.broadcast.to(roomId).emit('join', data);
+            global.roomList[roomId].user.push(data);
         });
 
         var req = socket.request;
@@ -31,7 +32,7 @@ module.exports = function (io) {
             nickname : socket.usernickname
         };
         //socket.broadcast.to(3).emit('join', data);
-        global.roomList[roomId].append(joinMessage);
+        
 
         socket.on('onFacialExpression', function (data) {
             socket.to(roomId).emit('onFacialExpression', data)

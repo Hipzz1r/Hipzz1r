@@ -13,7 +13,7 @@ app.use(cors({origin: 'https://localhost:3000', credentials:true}));
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 
-global.roomList = [];
+global.roomList = [{"roomName":"첫번째 방",user:[]},{"roomName":"두번째 방",user:[]}];
 const HTTPS_PORT = 8443;
 
 const options = {

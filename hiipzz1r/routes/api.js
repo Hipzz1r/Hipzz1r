@@ -5,7 +5,7 @@ router.get('/user', function(req, res, next) {
     var result = {};
     // console.log(req.session);
     if(req.session.avatar == undefined){
-        req.session.avatar = "Images/Monster1.png";
+        req.session.avatar = "/Images/Monster1.png";
         // console.log("t");
     }
     if(req.session.nickname == undefined) req.session.nickname = "익명의 래퍼";
@@ -17,7 +17,7 @@ router.get('/user', function(req, res, next) {
 });
 
 router.get('/user/avatar', function(req, res, next) {
-    if(req.session.avatar == undefined) req.session.avatar = "Images/Monster1.png";
+    if(req.session.avatar == undefined) req.session.avatar = "/Images/Monster1.png";
     res.send(req.session.avatar);
 });
 
