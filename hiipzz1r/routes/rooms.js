@@ -7,11 +7,15 @@ module.exports = function (io) {
     const room = io.of('/room');
 
     room.on('connection', function (socket) {
+        var roomId;
         
 
         socket.on('con', function (data) {
+            console.log(data)
+            roomId = data.roomIndex;
+            socket.join(roomId);
             console.log('Connect from Client: ' + data.sessionID)
-            socket.broadcast.to(3).emit('join', data);
+            socket.broadcast.to(roomId).emit('join', data);
         });
 
         var req = socket.request;
@@ -20,9 +24,7 @@ module.exports = function (io) {
         // console.log(socket.request.session);
         //roomId를 그냥 파라미터로 받기
         //var roomId = req.data.roomId;
-        var roomId = 3;
-
-        socket.join(roomId);
+        
         var joinMessage = {
             user: socket.userId,
             category : socket.avatarcategory,
