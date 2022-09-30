@@ -5,12 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const https = require('https');
 const fs = require('fs');
-const server = https.createServer(app);
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var roomsRouter = require('./routes/rooms')(io);
-
-var apiRouter = require('./routes/api');
+var app = express();
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
@@ -23,7 +18,12 @@ const options = {
   cert: fs.readFileSync('./cer/rootca.crt')
 };
 
-var app = express();
+const server = https.createServer(options,app);
+var io = require('socket.io')(server);
+
+var roomsRouter = require('./routes/rooms')(io);
+var apiRouter = require('./routes/api');
+
 app.set('socketio', io);
 
 // view engine setup
@@ -48,8 +48,6 @@ const sessionObj = {
 
 app.use(session(sessionObj));
 
-// app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/rooms', roomsRouter);
 app.use('/', apiRouter);
 
