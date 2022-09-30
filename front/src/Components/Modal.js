@@ -12,7 +12,7 @@ function Modal(props) {
         <button id="modalCloseBtn" onClick={closeModal}>
           ✖
         </button>
-        {props.children}
+        {props.avatar}
       </div>
     </div>
   );
