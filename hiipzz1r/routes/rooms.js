@@ -8,7 +8,7 @@ module.exports = function (io) {
 
     room.on('connection', function (socket) {
         var roomId;
-        
+
 
         socket.on('con', function (data) {
             console.log(data)
@@ -24,13 +24,14 @@ module.exports = function (io) {
         // console.log(socket.request.session);
         //roomId를 그냥 파라미터로 받기
         //var roomId = req.data.roomId;
-        
+
         var joinMessage = {
             user: socket.userId,
             category : socket.avatarcategory,
             nickname : socket.usernickname
         };
-        
+        //socket.broadcast.to(3).emit('join', data);
+        global.roomList[roomId].append(joinMessage);
 
         socket.on('onFacialExpression', function (data) {
             socket.to(roomId).emit('onFacialExpression', data)
@@ -39,11 +40,12 @@ module.exports = function (io) {
         socket.on('onUserExit', function (data) {
             console.log('user exit' + data.userId)
             var leaveMessage = {
-                message : data.userId
-                ,socketId : data.socketId
+                user : data.userId
             };
 
             socket.to(roomId).emit('exit', leaveMessage);
+            //나가도 그냥 두자
+            //global.roomList[roomId].remove();
             socket.leave(roomId);
         });
 
