@@ -7,7 +7,7 @@ import Avatar from './Components/Avatar';
 
 const Title = styled.h1``;
 
-const Button = styled.div`
+const Button = styled.button`
   font-size: 18px;
   font-weight: 700;
   line-height: 49px;
@@ -47,11 +47,17 @@ function UserSet() {
   const [nickname, setNickname] = useState('');
 
   const [avatarMode, setAvatarMode] = useState(true);
-
+  const [avatar, setAvatar] = useState('');
   const [signup, setSignup] = useState(true);
 
   const onChangeNickname = (e) => {
     setNickname(e.target.value);
+  };
+
+  const chooseAvatar = (val) => {
+    setAvatar(val);
+    setSignup((prev) => !prev);
+    console.log(avatar);
   };
 
   return (
@@ -62,7 +68,7 @@ function UserSet() {
         <>
           <Button>아바타 설정</Button>
           <Modal closeModal={() => setSignup((prev) => !prev)}>
-            <Avatar />
+            <Avatar chooseAvatar={chooseAvatar} />
           </Modal>
         </>
       )}
