@@ -52,30 +52,34 @@ room.on('connection', function (socket) {
 
   var req = socket.request;
 
-  const {
-    headers: {referer},
-  } = req;
-  const roomId = referer.split('/')[referer.split('/').length-1].replace(/\?.+/,'');
-  socket.join(roomId);
+  //roomId를 그냥 파라미터로 받기
+  var roomId = socket.roomId;
 
-  socket.to(roomId).emit('join', {
+  socket.join(roomId);
+  var joinMessage = {
     user: socket.userId,
     category : socket.avatarcategory,
     nickname : socket.usernickname
-  });
+  };
+  socket.to(roomId).emit('join', joinMessage);
 
   socket.on('onFacialExpression', function (data) {
-
+    socket.to(roomId).emit('onFacialExpression', data)
   });
+
   socket.on('onUserExit', function (data) {
     console.log('user exit' + data.userId)
-    var rtnMessage = {
+    var leaveMessage = {
       message : data.userId
       ,socketId : data.socketId
     };
-    socket.to(roomId).emit('onUserExit', rtnMessage);
+    socket.to(roomId).emit('exit', leaveMessage);
     socket.leave(roomId);
   });
+  socket.on('disconnect', function() {
+    console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
+    socket.leave(roomId);
+  })
 })
 
 
