@@ -1,83 +1,84 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const https = require('https');
-const fs = require('fs');
+var createError = require("http-errors");
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+const https = require("https");
+const fs = require("fs");
 var app = express();
-const cors = require('cors');
+const cors = require("cors");
 
-app.use(cors({origin: 'https://localhost:3000', credentials:true}));
+app.use(cors({ origin: "https://localhost:3000", credentials: true }));
 
-const session = require('express-session');
-const MemoryStore = require('memorystore')(session);
+const session = require("express-session");
+const MemoryStore = require("memorystore")(session);
 
-global.roomList = [{"roomName":"첫번째 방",user:[]},{"roomName":"두번째 방",user:[]}];
+global.roomList = [
+    { roomName: "첫번째 방", user: [] },
+    { roomName: "두번째 방", user: [] },
+];
 const HTTPS_PORT = 8443;
 
 const options = {
-  key: fs.readFileSync('./cer/rootca.key'),
-  cert: fs.readFileSync('./cer/rootca.crt')
+    key: fs.readFileSync("./cer/rootca.key"),
+    cert: fs.readFileSync("./cer/rootca.crt"),
 };
 
-const server = https.createServer(options,app);
-var io = require('socket.io')(server);
+const server = https.createServer(options, app);
+var io = require("socket.io")(server);
 
-var roomsRouter = require('./routes/rooms')(io);
-var apiRouter = require('./routes/api');
+var roomsRouter = require("./routes/rooms")(io);
+var apiRouter = require("./routes/api");
 
-app.set('socketio', io);
+app.set("socketio", io);
 
 const sessionObj = session({
-  secret: 'hiipzz1r',
-  resave: false,
-  saveUninitialized: true,
-  store: new MemoryStore({ checkPeriod: (3.6e+6)*24 }),
-  cookie: {
-    maxAge: (3.6e+6)*24,
-    httpOnly: true,
-    secure: false
-  }
+    secret: "hiipzz1r",
+    resave: false,
+    saveUninitialized: true,
+    store: new MemoryStore({ checkPeriod: 3.6e6 * 24 }),
+    cookie: {
+        maxAge: 3.6e6 * 24,
+        httpOnly: true,
+        secure: false,
+    },
 });
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "jade");
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(sessionObj);
 
-app.use('/rooms', roomsRouter);
-app.use('/', apiRouter);
+app.use("/rooms", roomsRouter);
+app.use("/", apiRouter);
 
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use(function (req, res, next) {
+    next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render("error");
 });
 
-
-server.listen(HTTPS_PORT, function() {
-  console.log("Socket IO server listening on port "+HTTPS_PORT);
-})
+server.listen(HTTPS_PORT, function () {
+    console.log("Socket IO server listening on port " + HTTPS_PORT);
+});
 
 module.exports = app;
-
 
 // const express = require('express');
 // const http = require('http');
