@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Modal from './Components/Modal';
 import Avatar from './Components/Avatar';
+import { useRecoilValue } from 'recoil';
+import { UserSetting } from './atom';
 
 const Title = styled.h1``;
 
@@ -45,7 +47,7 @@ const NicknameContainer = styled.div``;
 function UserSet() {
   const [nicknameMode, setNicknameMode] = useState(true);
   const [nickname, setNickname] = useState('');
-
+  const avatar = useRecoilValue(UserSetting);
   const [avatarMode, setAvatarMode] = useState(true);
 
   const [signup, setSignup] = useState(true);
@@ -82,6 +84,7 @@ function UserSet() {
           <button onClick={() => setNicknameMode((prev) => !prev)}>취소</button>
         </NicknameContainer>
       )}
+      <img src={avatar} alt="avatar" />
     </div>
   );
 }
