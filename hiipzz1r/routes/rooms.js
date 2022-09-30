@@ -9,13 +9,13 @@ module.exports = function (io) {
     room.on('connection', function (socket) {
         var roomId;
 
-
         socket.on('con', function (data) {
-            console.log(data)
+            console.log(data);
             roomId = data.roomIndex;
             socket.join(roomId);
-            console.log('Connect from Client: ' + data.sessionID)
+            console.log('Connect from Client: ' + data.sessionID);
             socket.broadcast.to(roomId).emit('join', data);
+            global.roomList[roomId].append(data);
         });
 
         var req = socket.request;
@@ -31,7 +31,6 @@ module.exports = function (io) {
             nickname : socket.usernickname
         };
         //socket.broadcast.to(3).emit('join', data);
-        global.roomList[roomId].append(joinMessage);
 
         socket.on('onFacialExpression', function (data) {
             socket.to(roomId).emit('onFacialExpression', data)
@@ -52,7 +51,7 @@ module.exports = function (io) {
         socket.on('disconnect', function() {
             console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
             socket.leave(roomId);
-        })
+        });
     })
     return router;
 }
