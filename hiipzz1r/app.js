@@ -5,10 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const https = require('https');
 const fs = require('fs');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
-var apiRouter = require('./routes/api');
+var app = express();
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
@@ -21,7 +18,12 @@ const options = {
   cert: fs.readFileSync('./cer/rootca.crt')
 };
 
-var app = express();
+const server = https.createServer(options,app);
+var io = require('socket.io')(server);
+
+var roomsRouter = require('./routes/rooms')(io);
+var apiRouter = require('./routes/api');
+
 app.set('socketio', io);
 
 // view engine setup
@@ -46,11 +48,9 @@ const sessionObj = {
 
 app.use(session(sessionObj));
 
-// app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/rooms', roomsRouter);
 app.use('/', apiRouter);
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
@@ -66,31 +66,6 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-// const server = http.createServer(app);
-
-var io = require('socket.io')(server);
-
-io.on('connection', function (socket) {
-
-  console.log('Connect from Client: ' + socket)
-
-  socket.on('onUserExit', function (data) {
-    console.log('message from Client: ' + data.message)
-    var rtnMessage = {
-      message : data.message
-      ,socketId : data.socketId
-    }; // 클라이언트에게 메시지를 전송한다
-    socket.broadcast.emit('chat', rtnMessage);
-  });
-  socket.on('onUserEnter', function (data) {
-
-  });
-  socket.on('onFacialExpression', function (data) {
-
-  });
-})
-
-var server = https.createServer(options, app);
 
 server.listen(HTTPS_PORT, function() {
   console.log("Socket IO server listening on port "+HTTPS_PORT);
